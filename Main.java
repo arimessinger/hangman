@@ -1,62 +1,126 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 import java.util.Scanner;
-import java.util.HashMap;
 
-public class Main
-{
-    private static Scanner scanner = new Scanner(System.in);
-    private static int badGuessCounter = 0;
-    
+public class Main {
     public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
         clearTerminal();
         createHangman();
-        insertLetter();
-        if(badGuessCounter < 6){ System.out.println("You Win!");}
+        String displayText = null;
+        generateLetters();
+        int badGuessCounter = 0;
+        while(true) {
+            
+            clearTerminal();
+            System.out.println("Enter letter:");
+            printStuff();
+            
+
+            System.out.println("\n\n\n\n"+ hangman(badGuessCounter));
+            if(displayText != null) {
+                System.out.println(displayText);
+            } 
+            else {
+                System.out.println(" ");
+            }
+            
+            System.out.println("\n\n\n");
+            String letter = scanner.next().toUpperCase();
+            if (lettersInWord.contains(letter)) {
+                
+
+                if(guessedLetters.contains(letter)) {
+                    displayText = "You already guessed that letter!";
+                }
+                else {
+                    displayText = "Correct!";
+                }
+                guessedLetters.add(letter);
+            } else {
+                displayText = "Incorrect!";
+                badGuessCounter++;
+                if(badGuessCounter >= 6) { 
+                    clearTerminal();
+                    System.out.println("You lose!\n\n\n\n\n\n"+ hangman(badGuessCounter));
+                    break;
+                }
+            }
+            boolean win = false;
+            for(int i = 0; i < lettersInWord.size(); i++) {
+                System.out.println(lettersInWord);
+                System.out.println(guessedLetters);
+                if(guessedLetters.contains(lettersInWord.get(i))) {
+                    if(i == lettersInWord.size() - 1) {
+                        win = true;
+                        break;
+                    }
+                } else {
+                    break;
+                }
+            }
+            if(win) {
+                clearTerminal();
+                System.out.println("You Win!");
+                break;
+            }
+        }
+            
+            
+    }
+
+    private static String generateWord() {
+        ArrayList<String> words = new ArrayList<String>();
+        words.add("COOL");
+        words.add("AWESOME");
+        words.add("FUN");
+        Random rand = new Random();
+        int randomInt = rand.nextInt(3);
+        if(randomInt == 1) {return words.get(0);}
+        else if(randomInt == 2) {return words.get(1);}
+        else {return words.get(2);}
         
     }
 
-    private static void insertLetter() {
-        System.out.println("Enter letter:");
-        printWord(word.length());
-        int length = word.length();
-        System.out.println("\n\n\n\n"+ hangman(badGuessCounter));
-        for(int i = 0; i < length; i++) {
-            while(true) {
-                String guessedCharacter = scanner.next();
-                char correctChar = word.charAt(i);
-                String correctCharacter = Character.toString(correctChar);
-                if(guessedCharacter.equalsIgnoreCase(correctCharacter)) {
-                    guessedLetters.add(correctCharacter);
-                    break;
-                } else { 
-                    badGuessCounter++;
-                }
-                clearTerminal();
-                System.out.println("You were incorrect!");
-                System.out.println("Enter letter:");
-                printWord(word.length() - i);
-                System.out.println("\n\n\n"+ hangman(badGuessCounter));
-                if(badGuessCounter >= 6){ break;}
+    private static void generateLetters() {
+        for(int i = 0; i < word.length(); i++) {
+            String character = Character.toString(word.charAt(i));
+            if(lettersInWord.contains(word.charAt(i)) == false) {
+                lettersInWord.add(character);
             }
-
-            clearTerminal();
-
-            System.out.println("You were correct!");
-            System.out.println("Enter letter:");
-            printWord((word.length() - i) - 1);
-            System.out.println("\n\n\n"+ hangman(badGuessCounter));
-            if(badGuessCounter >= 6) { 
-                System.out.println("\u000C" +"You lose!\n\n\n\n\n\n"+ hangman(badGuessCounter));
-                break;}
         }
     }
-    
-    
-    
+
+    private static ArrayList<String> lettersInWord = new ArrayList<String>();
     private static ArrayList<String> guessedLetters = new ArrayList<String>();
-    
-    private static HashMap<String, String> hangmans = new HashMap<String, String>();
+
+    private static String word = generateWord();
+    private static void printStuff() {
+        for(int i = 0; i < word.length(); i++) {
+            
+            if(guessedLetters.contains(Character.toString(word.charAt(i)))) {
+                System.out.print(word.charAt(i) + " ");
+            } else {
+                System.out.print("_ ");
+            }
+
+        }
+    }
+
+    private static void clearTerminal() {
+    try {
+        if (System.getProperty("os.name").contains("Windows")) {
+            new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+        } else {
+            System.out.print("\033[H\033[2J");
+            System.out.flush();
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+private static HashMap<String, String> hangmans = new HashMap<String, String>();
     private static void createHangman() {
         
         hangmans.put("bare",
@@ -155,44 +219,4 @@ public class Main
                 return hangmans.get("over");
         }
     }
-    
-    private static String word = generateWord();
-    
-    private static void printWord(int lines) {
-        for(int x = 0; x < guessedLetters.size(); x++) {
-                System.out.print(guessedLetters.get(x) + " ");
-            }
-            
-        for(int i = lines; i > 0; i--) {
-            System.out.print("_ ");
-        }
-    }
-
-    private static String generateWord() {
-        ArrayList<String> words = new ArrayList<String>();
-        words.add("COOL");
-        words.add("AWESOME");
-        words.add("FUN");
-        Random rand = new Random();
-        int randomInt = rand.nextInt(3);
-        if(randomInt == 1) {return words.get(0);}
-        else if(randomInt == 2) {return words.get(1);}
-        else {return words.get(2);}
-        
-    }
-
-
-public static void clearTerminal() {
-    try {
-        if (System.getProperty("os.name").contains("Windows")) {
-            new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
-        } else {
-            System.out.print("\033[H\033[2J");
-            System.out.flush();
-        }
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-}
-
 }
